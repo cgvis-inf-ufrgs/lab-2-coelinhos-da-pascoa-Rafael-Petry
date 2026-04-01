@@ -220,6 +220,7 @@ int main(int argc, char* argv[])
     // Inicializamos a biblioteca GLFW, utilizada para criar uma janela do
     // sistema operacional, onde poderemos renderizar com OpenGL.
     int success = glfwInit();
+
     if (!success)
     {
         fprintf(stderr, "ERROR: glfwInit() failed.\n");
@@ -401,13 +402,13 @@ int main(int argc, char* argv[])
         #define PLANE  2
 
         // Desenhamos o modelo da esfera
-        model = Matrix_Translate(-1.0f,0.0f,0.0f);
+        model = Matrix_Translate(-1.0f,0.0f,0.0f) * Matrix_Scale(0.12f,0.2f,0.12f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_sphere");
 
         // Desenhamos o modelo do coelho
-        model = Matrix_Translate(1.0f,0.0f,0.0f);
+        model = Matrix_Translate(cos(glfwGetTime()) * 1.2f,cos(glfwGetTime() * 2.0f) * 0.5f,sin(glfwGetTime()) * 1.2f) * Matrix_Scale(0.4f,0.4f,0.4f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, BUNNY);
         DrawVirtualObject("the_bunny");
