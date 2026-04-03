@@ -407,8 +407,15 @@ int main(int argc, char* argv[])
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_sphere");
 
+        float bunnyX = -cos(glfwGetTime()*0.8) * 1.2f;
+        float bunnyY = -cos(glfwGetTime()*2.0f) * 0.5f;
+        float bunnyZ = sin(glfwGetTime()*0.8) * 1.2f;
+        glm::mat4 translateBunny = Matrix_Translate(bunnyX, bunnyY, bunnyZ);
+        glm::mat4 scaleBunny = Matrix_Scale(0.3f,0.3f,0.3f);
+        glm::mat4 rotationBunnyY = Matrix_Rotate_Y(glfwGetTime()*0.8f + M_PI/2.0f);
+
         // Desenhamos o modelo do coelho
-        model = Matrix_Translate(cos(glfwGetTime()) * 1.2f,cos(glfwGetTime() * 2.0f) * 0.5f,sin(glfwGetTime()) * 1.2f) * Matrix_Scale(0.4f,0.4f,0.4f);
+        model = translateBunny * rotationBunnyY * scaleBunny;
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, BUNNY);
         DrawVirtualObject("the_bunny");
