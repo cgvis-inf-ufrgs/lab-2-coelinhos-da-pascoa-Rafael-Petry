@@ -33,8 +33,6 @@ float sheenTint		 = 0.0;
 float clearcoat		 = 0.0;
 float clearcoatGloss = 1.0;
 
-const float PI = 3.14159265358979323846;
-
 // Luzes direcionais configuradas diretamente no shader.
 const int LIGHT_COUNT = 5;
 const vec3 LIGHT_DIRECTIONS[LIGHT_COUNT] = vec3[](
@@ -51,6 +49,24 @@ const vec3 LIGHT_COLORS[LIGHT_COUNT] = vec3[](
     vec3(0.5, 0.5, 0.5),
     vec3(0.0, 0.2, 0.0)
 );
+
+// <START OF THIRD-PARTY SOURCE CODE>
+// Copyright Disney Enterprises, Inc.  All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License
+// and the following modification to it: Section 6 Trademarks.
+// deleted and replaced with:
+//
+// 6. Trademarks. This License does not grant permission to use the
+// trade names, trademarks, service marks, or product names of the
+// Licensor and its affiliates, except as required for reproducing
+// the content of the NOTICE file.
+//
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+
+const float PI = 3.14159265358979323846;
 
 float sqr(float x) { return x*x; }
 
@@ -152,6 +168,7 @@ vec3 BRDF( vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y )
         * (1-metallic)
         + Gs*Fs*Ds + .25*clearcoat*Gr*Fr*Dr;
 }
+// <END OF THIRD-PARTY SOURCE CODE>
 
 void main()
 {
