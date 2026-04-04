@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "INF01047 - 00581131 - Rafael Petry da Silva", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -318,6 +318,13 @@ int main(int argc, char* argv[])
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+    const float angularSpeed = 0.6f;
+    const float rotationRadius = 1.75f;
+    const int bunnyCount = 16;
+    const float bunnyFollowDelay = (2.0f * M_PI / bunnyCount) / angularSpeed;
+    const float eggOrbitRadius = 0.3f;
+    const float eggAngularSpeed = 2.0f;
 
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -401,24 +408,46 @@ int main(int argc, char* argv[])
         #define BUNNY  1
         #define PLANE  2
 
-        // Desenhamos o modelo da esfera
-        model = Matrix_Translate(-1.0f,0.0f,0.0f) * Matrix_Scale(0.12f,0.2f,0.12f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_sphere");
+        for (int bunnyIndex = 0; bunnyIndex < bunnyCount; bunnyIndex++)
+        {
+            float bunnyTime = glfwGetTime() - bunnyIndex*bunnyFollowDelay;
+            float bunnyAngle = bunnyTime*angularSpeed;
+            float bunnyX = -cos(bunnyAngle) * rotationRadius;
+            float bunnyZ = sin(bunnyAngle) * rotationRadius;
+            float bunnyY = -cos(bunnyAngle*4.0f) * 0.5f;
+            bool bunnyDoesFlip = (bunnyIndex % 4 == 0);
 
-        float bunnyX = -cos(glfwGetTime()*0.8) * 1.2f;
-        float bunnyY = -cos(glfwGetTime()*2.0f) * 0.5f;
-        float bunnyZ = sin(glfwGetTime()*0.8) * 1.2f;
-        glm::mat4 translateBunny = Matrix_Translate(bunnyX, bunnyY, bunnyZ);
-        glm::mat4 scaleBunny = Matrix_Scale(0.3f,0.3f,0.3f);
-        glm::mat4 rotationBunnyY = Matrix_Rotate_Y(glfwGetTime()*0.8f + M_PI/2.0f);
+            glm::mat4 translateBunny = Matrix_Translate(bunnyX, bunnyY, bunnyZ);
+            glm::mat4 scaleBunny = Matrix_Scale(0.22f,0.22f,0.22f);
+            glm::mat4 rotationBunnyY = Matrix_Rotate_Y(bunnyAngle + M_PI/2.0f);
+            glm::mat4 rotationBunnyZ = bunnyDoesFlip ? Matrix_Rotate_Z(bunnyAngle*4.0f) : Matrix_Identity();
+            glm::mat4 bunnyOrbit = translateBunny * rotationBunnyY;
 
-        // Desenhamos o modelo do coelho
-        model = translateBunny * rotationBunnyY * scaleBunny;
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BUNNY);
-        DrawVirtualObject("the_bunny");
+            // Desenhamos o modelo do coelho
+            model = bunnyOrbit * rotationBunnyZ * scaleBunny;
+            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, BUNNY);
+            DrawVirtualObject("the_bunny");
+
+            // Desenhamos os ovos orbitando o coelho
+            for (int eggIndex = 0; eggIndex < 2; eggIndex++)
+            {
+                float eggStartingAngle = eggIndex * M_PI;
+                float eggAngle = -glfwGetTime()*eggAngularSpeed + eggStartingAngle;
+                float eggY = cos(eggAngle) * eggOrbitRadius;
+                float eggZ = sin(eggAngle) * eggOrbitRadius;
+                float eggX = 0.0f;
+
+                glm::mat4 translateEgg = Matrix_Translate(eggX, eggY, eggZ);
+                glm::mat4 scaleEgg = Matrix_Scale(0.07f,0.11f,0.07f);
+
+                model = bunnyOrbit * translateEgg * scaleEgg;
+
+                glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                glUniform1i(g_object_id_uniform, SPHERE);
+                DrawVirtualObject("the_sphere");
+            }
+        }
 
         // Desenhamos o plano do chão
         model = Matrix_Translate(0.0f,-1.0f,0.0f) * Matrix_Scale(4.0f,1.0f,4.0f);
